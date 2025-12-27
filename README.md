@@ -56,3 +56,4 @@ aws-coreAgent-poc/
 | Region | eu-central-1 (Frankfurt) |
 | Model | Claude Sonnet 4 |
 | Budget | < $30 |
+# aws-coreAgent-poc
