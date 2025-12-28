@@ -67,9 +67,6 @@ echo ""
 # ==========================================
 echo "[2/4] Creating Action Group with Lambda binding..."
 
-# Read OpenAPI schema
-OPENAPI_SCHEMA=$(cat "$AGENT_DIR/openapi-schema.json")
-
 # Check if action group exists
 EXISTING_AG=$(aws bedrock-agent list-agent-action-groups \
     --agent-id "$AGENT_ID" \
@@ -81,15 +78,31 @@ EXISTING_AG=$(aws bedrock-agent list-agent-action-groups \
 if [ -n "$EXISTING_AG" ]; then
     echo "  Action group already exists: $EXISTING_AG"
 else
+    # Convert OpenAPI schema to escaped JSON string
+    OPENAPI_STRING=$(cat "$AGENT_DIR/openapi-schema.json" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))')
+
+    # Create CLI input JSON file
+    CLI_INPUT_FILE="/tmp/create-action-group-input.json"
+    cat > "$CLI_INPUT_FILE" << EOFCLI
+{
+    "agentId": "$AGENT_ID",
+    "agentVersion": "DRAFT",
+    "actionGroupName": "cost-explorer-actions",
+    "actionGroupExecutor": {
+        "lambda": "$LAMBDA_ARN"
+    },
+    "apiSchema": {
+        "payload": $OPENAPI_STRING
+    },
+    "description": "Actions for querying AWS cost data"
+}
+EOFCLI
+
     aws bedrock-agent create-agent-action-group \
-        --agent-id "$AGENT_ID" \
-        --agent-version "DRAFT" \
-        --action-group-name "cost-explorer-actions" \
-        --action-group-executor "lambda={lambdaArn=$LAMBDA_ARN}" \
-        --api-schema "payload=$OPENAPI_SCHEMA" \
-        --description "Actions for querying AWS cost data" \
+        --cli-input-json file://"$CLI_INPUT_FILE" \
         --region "$AWS_REGION"
 
+    rm -f "$CLI_INPUT_FILE"
     echo "  Action group created."
 fi
 
