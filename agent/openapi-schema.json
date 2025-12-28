@@ -20,7 +20,8 @@
             "schema": {
               "type": "string",
               "format": "date"
-            }
+            },
+            "example": "2025-12-01"
           },
           {
             "name": "end_date",
@@ -30,7 +31,8 @@
             "schema": {
               "type": "string",
               "format": "date"
-            }
+            },
+            "example": "2025-12-28"
           },
           {
             "name": "group_by",
@@ -40,7 +42,8 @@
             "schema": {
               "type": "string",
               "enum": ["SERVICE", "REGION", "INSTANCE_TYPE"]
-            }
+            },
+            "example": "SERVICE"
           },
           {
             "name": "granularity",
@@ -50,7 +53,8 @@
             "schema": {
               "type": "string",
               "enum": ["DAILY", "MONTHLY"]
-            }
+            },
+            "example": "MONTHLY"
           }
         ],
         "responses": {
@@ -61,34 +65,25 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "start_date": {
-                      "type": "string",
-                      "description": "Start date of the query"
-                    },
-                    "end_date": {
-                      "type": "string",
-                      "description": "End date of the query"
-                    },
-                    "group_by": {
-                      "type": "string",
-                      "description": "Dimension used for grouping"
-                    },
-                    "granularity": {
-                      "type": "string",
-                      "description": "Time granularity"
-                    },
-                    "total": {
-                      "type": "string",
-                      "description": "Total cost formatted as currency"
-                    },
-                    "breakdown": {
-                      "type": "array",
-                      "description": "Cost breakdown by the grouped dimension",
-                      "items": {
-                        "type": "object"
-                      }
-                    }
+                    "start_date": {"type": "string"},
+                    "end_date": {"type": "string"},
+                    "group_by": {"type": "string"},
+                    "granularity": {"type": "string"},
+                    "total": {"type": "string"},
+                    "breakdown": {"type": "array", "items": {"type": "object"}}
                   }
+                },
+                "example": {
+                  "start_date": "2025-12-01",
+                  "end_date": "2025-12-28",
+                  "group_by": "SERVICE",
+                  "granularity": "MONTHLY",
+                  "total": "$234.56",
+                  "breakdown": [
+                    {"period": "2025-12-01 to 2025-12-28", "service": "Amazon EC2", "amount": "$142.30"},
+                    {"period": "2025-12-01 to 2025-12-28", "service": "Amazon RDS", "amount": "$52.10"},
+                    {"period": "2025-12-01 to 2025-12-28", "service": "Amazon S3", "amount": "$23.45"}
+                  ]
                 }
               }
             }
@@ -110,7 +105,8 @@
             "schema": {
               "type": "string",
               "format": "date"
-            }
+            },
+            "example": "2025-12-29"
           },
           {
             "name": "end_date",
@@ -120,7 +116,8 @@
             "schema": {
               "type": "string",
               "format": "date"
-            }
+            },
+            "example": "2026-01-31"
           },
           {
             "name": "granularity",
@@ -130,7 +127,8 @@
             "schema": {
               "type": "string",
               "enum": ["DAILY", "MONTHLY"]
-            }
+            },
+            "example": "MONTHLY"
           }
         ],
         "responses": {
@@ -141,26 +139,20 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "forecast_period": {
-                      "type": "string",
-                      "description": "Time period for the forecast"
-                    },
-                    "granularity": {
-                      "type": "string",
-                      "description": "Time granularity"
-                    },
-                    "total_forecast": {
-                      "type": "string",
-                      "description": "Total forecasted cost"
-                    },
-                    "breakdown": {
-                      "type": "array",
-                      "description": "Forecast breakdown by period",
-                      "items": {
-                        "type": "object"
-                      }
-                    }
+                    "forecast_period": {"type": "string"},
+                    "granularity": {"type": "string"},
+                    "total_forecast": {"type": "string"},
+                    "breakdown": {"type": "array", "items": {"type": "object"}}
                   }
+                },
+                "example": {
+                  "forecast_period": "2025-12-29 to 2026-01-31",
+                  "granularity": "MONTHLY",
+                  "total_forecast": "$267.00",
+                  "breakdown": [
+                    {"period": "2025-12-01 to 2026-01-01", "mean": "$133.50", "low": "$120.00", "high": "$150.00"},
+                    {"period": "2026-01-01 to 2026-02-01", "mean": "$133.50", "low": "$115.00", "high": "$155.00"}
+                  ]
                 }
               }
             }
@@ -183,7 +175,8 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 90
-            }
+            },
+            "example": 30
           },
           {
             "name": "monitor_arn",
@@ -203,58 +196,47 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "lookback_period": {
-                      "type": "string",
-                      "description": "Time period searched for anomalies"
-                    },
-                    "monitor_arn": {
-                      "type": "string",
-                      "description": "ARN of the anomaly monitor used"
-                    },
-                    "anomaly_count": {
-                      "type": "integer",
-                      "description": "Number of anomalies found"
-                    },
+                    "lookback_period": {"type": "string"},
+                    "monitor_arn": {"type": "string"},
+                    "anomaly_count": {"type": "integer"},
                     "anomalies": {
                       "type": "array",
-                      "description": "List of detected anomalies with details",
                       "items": {
                         "type": "object",
                         "properties": {
-                          "anomaly_id": {
-                            "type": "string"
-                          },
-                          "start_date": {
-                            "type": "string"
-                          },
-                          "end_date": {
-                            "type": "string"
-                          },
-                          "dimension": {
-                            "type": "string"
-                          },
-                          "expected_spend": {
-                            "type": "string"
-                          },
-                          "actual_spend": {
-                            "type": "string"
-                          },
-                          "impact": {
-                            "type": "string"
-                          },
-                          "impact_percentage": {
-                            "type": "string"
-                          },
-                          "root_causes": {
-                            "type": "array",
-                            "items": {
-                              "type": "object"
-                            }
-                          }
+                          "anomaly_id": {"type": "string"},
+                          "start_date": {"type": "string"},
+                          "end_date": {"type": "string"},
+                          "dimension": {"type": "string"},
+                          "expected_spend": {"type": "string"},
+                          "actual_spend": {"type": "string"},
+                          "impact": {"type": "string"},
+                          "impact_percentage": {"type": "string"},
+                          "root_causes": {"type": "array", "items": {"type": "object"}}
                         }
                       }
                     }
                   }
+                },
+                "example": {
+                  "lookback_period": "2025-11-28 to 2025-12-28",
+                  "monitor_arn": "arn:aws:ce::123456789012:anomalymonitor/abc123",
+                  "anomaly_count": 1,
+                  "anomalies": [
+                    {
+                      "anomaly_id": "abc123",
+                      "start_date": "2025-12-20",
+                      "end_date": "2025-12-21",
+                      "dimension": "Amazon EC2",
+                      "expected_spend": "$67.00",
+                      "actual_spend": "$185.00",
+                      "impact": "$118.00",
+                      "impact_percentage": "176.1%",
+                      "root_causes": [
+                        {"service": "Amazon EC2", "region": "us-east-1", "usage_type": "BoxUsage:c5.4xlarge"}
+                      ]
+                    }
+                  ]
                 }
               }
             }
