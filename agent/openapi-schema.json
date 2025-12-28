@@ -1,0 +1,266 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Cost Explorer Tool API",
+    "version": "1.0.0",
+    "description": "API for querying AWS cost data, forecasts, and anomalies"
+  },
+  "paths": {
+    "/get_cost_and_usage": {
+      "get": {
+        "summary": "Get cost and usage data",
+        "description": "Retrieves AWS cost and usage data for a specified time period, grouped by a dimension like SERVICE or REGION.",
+        "operationId": "getCostAndUsage",
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "Start date in YYYY-MM-DD format. Defaults to first day of current month.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "description": "End date in YYYY-MM-DD format. Defaults to today.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "description": "Dimension to group costs by. Options: SERVICE, REGION, INSTANCE_TYPE. Defaults to SERVICE.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["SERVICE", "REGION", "INSTANCE_TYPE"]
+            }
+          },
+          {
+            "name": "granularity",
+            "in": "query",
+            "description": "Time granularity for results. Options: DAILY, MONTHLY. Defaults to MONTHLY.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["DAILY", "MONTHLY"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with cost data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "start_date": {
+                      "type": "string",
+                      "description": "Start date of the query"
+                    },
+                    "end_date": {
+                      "type": "string",
+                      "description": "End date of the query"
+                    },
+                    "group_by": {
+                      "type": "string",
+                      "description": "Dimension used for grouping"
+                    },
+                    "granularity": {
+                      "type": "string",
+                      "description": "Time granularity"
+                    },
+                    "total": {
+                      "type": "string",
+                      "description": "Total cost formatted as currency"
+                    },
+                    "breakdown": {
+                      "type": "array",
+                      "description": "Cost breakdown by the grouped dimension",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get_cost_forecast": {
+      "get": {
+        "summary": "Get cost forecast",
+        "description": "Retrieves predicted AWS costs for a future time period based on historical usage patterns.",
+        "operationId": "getCostForecast",
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "Forecast start date in YYYY-MM-DD format. Defaults to tomorrow.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "description": "Forecast end date in YYYY-MM-DD format. Defaults to end of next month.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "granularity",
+            "in": "query",
+            "description": "Time granularity for forecast. Options: DAILY, MONTHLY. Defaults to MONTHLY.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["DAILY", "MONTHLY"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with forecast data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "forecast_period": {
+                      "type": "string",
+                      "description": "Time period for the forecast"
+                    },
+                    "granularity": {
+                      "type": "string",
+                      "description": "Time granularity"
+                    },
+                    "total_forecast": {
+                      "type": "string",
+                      "description": "Total forecasted cost"
+                    },
+                    "breakdown": {
+                      "type": "array",
+                      "description": "Forecast breakdown by period",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get_anomalies": {
+      "get": {
+        "summary": "Get cost anomalies",
+        "description": "Retrieves ML-detected cost anomalies from AWS Cost Anomaly Detection service.",
+        "operationId": "getAnomalies",
+        "parameters": [
+          {
+            "name": "lookback_days",
+            "in": "query",
+            "description": "Number of days to look back for anomalies. Maximum 90 days. Defaults to 30.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 90
+            }
+          },
+          {
+            "name": "monitor_arn",
+            "in": "query",
+            "description": "ARN of the anomaly monitor to query. Defaults to first available monitor.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with anomaly data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lookback_period": {
+                      "type": "string",
+                      "description": "Time period searched for anomalies"
+                    },
+                    "monitor_arn": {
+                      "type": "string",
+                      "description": "ARN of the anomaly monitor used"
+                    },
+                    "anomaly_count": {
+                      "type": "integer",
+                      "description": "Number of anomalies found"
+                    },
+                    "anomalies": {
+                      "type": "array",
+                      "description": "List of detected anomalies with details",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "anomaly_id": {
+                            "type": "string"
+                          },
+                          "start_date": {
+                            "type": "string"
+                          },
+                          "end_date": {
+                            "type": "string"
+                          },
+                          "dimension": {
+                            "type": "string"
+                          },
+                          "expected_spend": {
+                            "type": "string"
+                          },
+                          "actual_spend": {
+                            "type": "string"
+                          },
+                          "impact": {
+                            "type": "string"
+                          },
+                          "impact_percentage": {
+                            "type": "string"
+                          },
+                          "root_causes": {
+                            "type": "array",
+                            "items": {
+                              "type": "object"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
